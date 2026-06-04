@@ -1,6 +1,7 @@
 const bookmarkImgURL = chrome.runtime.getURL("assets/bookmark.png");
 // for making a space in the storage for bookmark
 const AZ_PROBLEM_KEY = "AZ_PROBLEM_KEY";
+
 window.addEventListener("load", ()=>{
 addBookmarkButton();
 observeLayoutChanges();
