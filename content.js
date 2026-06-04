@@ -1,22 +1,47 @@
 const bookmarkImgURL = chrome.runtime.getURL("assets/bookmark.png");
 // for making a space in the storage for bookmark
 const AZ_PROBLEM_KEY = "AZ_PROBLEM_KEY";
-window.addEventListener("load", addBookmarkButton);
+window.addEventListener("load", ()=>{
+addBookmarkButton();
+observeLayoutChanges();
+});
+function observeLayoutChanges() {
+  const observer = new MutationObserver(() => {
+    // Re-add button if it disappears from DOM
+    if (!document.getElementById("add-bookmark-button")) {
+      addBookmarkButton();
+    }
+  });
+  observer.observe(document.body, {childList: true, subtree: true});
+}
 
 function addBookmarkButton() {
   if (document.getElementById("add-bookmark-button")) return;
+  const titleContainer = document.querySelector(
+    "div.flex.flex-wrap.items-start.justify-between"
+  );
+  if (!titleContainer) return;
+    const h4 = titleContainer.querySelector("h4");
+  if (!h4) return;
 
     const bookmarkButton = document.createElement("img");
     bookmarkButton.id = "add-bookmark-button";
     bookmarkButton.src = bookmarkImgURL;
 
-    const title = document.querySelector("h4");
-    if (!title) return;
     bookmarkButton.style.width = "24px";
     bookmarkButton.style.height = "24px";
-    bookmarkButton.style.marginTop = "8px";
+    bookmarkButton.style.cursor = "pointer";
+    //bookmarkButton.style.marginTop = "8px";
+    bookmarkButton.style.flexShrink = "0";
+    bookmarkButton.style.alignSelf = "center";
 
-    title.appendChild(bookmarkButton);
+  /*const titleContainer = title.closest("div");
+  if (titleContainer) {
+    titleContainer.appendChild(bookmarkButton);
+  } else {
+    title.insertAdjacentElement("afterend", bookmarkButton);
+  }*/
+ h4.insertAdjacentElement("afterend", bookmarkButton);
 
     bookmarkButton.addEventListener("click", addNewBookmarkHandler);
 
@@ -41,7 +66,7 @@ async function addNewBookmarkHandler() {
 }
 function  getCurrentBookmarks() {
   return new Promise((resolve,reject) => {
-      chrome.sync.get([AZ_PROBLEM_KEY], (result) => {
+      chrome.storage.sync.get([AZ_PROBLEM_KEY], (result) => {
         resolve(result[AZ_PROBLEM_KEY] || []);
       });
   });
